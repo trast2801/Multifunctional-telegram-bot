@@ -1,12 +1,12 @@
 import telebot
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 from telebot import types
 import config
 
 TOKEN = config.TOKEN
 
-#TOKEN = '<token goes here>'
+# TOKEN = '<token goes here>'
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -17,6 +17,7 @@ ASCII_CHARS = '@%#*+=-:. '
 
 
 def resize_image(image, new_width=100):
+    '''Изменяет размер изображения с сохранением пропорций.'''
     width, height = image.size
     ratio = height / width
     new_height = int(new_width * ratio)
@@ -24,11 +25,36 @@ def resize_image(image, new_width=100):
 
 
 def grayify(image):
+    '''Преобразует цветное изображение в оттенки серого.'''
     return image.convert("L")
 
+def invert_colors(image):
+    '''Используется функция invert_colors, которая применяет
+    ImageOps.invert из PIL (Python Imaging Library) к изображению.
+    '''
+    return ImageOps.invert(image)
+
+def send_photo(message):
+    '''Преобразует изображение в негатив и отправляет результат в виде текстового сообщения.'''
+    photo_id = user_states[message.chat.id]['photo']
+    file_info = bot.get_file(photo_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+
+    image_stream = io.BytesIO(downloaded_file)
+    image = Image.open(image_stream)
+    inverted = invert_colors(image)
+
+    output_stream = io.BytesIO()
+    inverted.save(output_stream, format="JPEG")
+    output_stream.seek(0)
+    bot.send_photo(message.chat.id, output_stream)
 
 def image_to_ascii(image_stream, new_width=40):
-    # Переводим в оттенки серого
+    '''
+    Основная функция для преобразования изображения в ASCII-арт.
+    Изменяет размер, преобразует в градации серого и затем в строку ASCII-символов.
+    '''
+    # Переводим в оттенки серого'''
     image = Image.open(image_stream).convert('L')
 
     # меняем размер сохраняя отношение сторон
@@ -52,6 +78,9 @@ def image_to_ascii(image_stream, new_width=40):
 
 
 def pixels_to_ascii(image):
+    """Конвертирует пиксели изображения в градациях серого в строку ASCII-символов,
+    используя предопределенную строку ASCII_CHARS
+    """
     pixels = image.getdata()
     characters = ""
     for pixel in pixels:
@@ -61,6 +90,8 @@ def pixels_to_ascii(image):
 
 # Огрубляем изображение
 def pixelate_image(image, pixel_size):
+    '''- Принимает изображение и размер пикселя. Уменьшает изображение до размера,
+    где один пиксель представляет большую область, затем увеличивает обратно, создавая пиксельный эффек'''
     image = image.resize(
         (image.size[0] // pixel_size, image.size[1] // pixel_size),
         Image.NEAREST
@@ -89,14 +120,17 @@ def get_options_keyboard():
     keyboard = types.InlineKeyboardMarkup()
     pixelate_btn = types.InlineKeyboardButton("Pixelate", callback_data="pixelate")
     ascii_btn = types.InlineKeyboardButton("ASCII Art", callback_data="ascii")
-    change_ASCII = types.InlineKeyboardButton("Сменит набор ASCII", callback_data="change_ascii")
-    keyboard.add(pixelate_btn, ascii_btn, change_ASCII)
+    change_ASCII = types.InlineKeyboardButton("Сменить набор ASCII", callback_data="change_ascii")
+    image_negative = types.InlineKeyboardButton("Получить Негатив", callback_data="invert_colors")
+    keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative, row_width=2)
     return keyboard
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    ''' отбработка выбора пользователя '''
+    '''    Определяет действия в ответ на выбор пользователя (например, пикселизация или ASCII-арт)
+        и вызывает соответствующую функцию обработки.
+    '''
     if call.data == "pixelate":
         bot.answer_callback_query(call.id, "Пикселизация вашего изображения...")
         pixelate_and_send(call.message)
@@ -107,18 +141,22 @@ def callback_query(call):
         msg = bot.send_message(call.message.chat.id, 'Введите набор символов')
         bot.register_next_step_handler(msg, ch_asc)
         get_options_keyboard()
-def ch_asc(message):
-    ''' присавивает новое значение набору символов, учавствуют только уникальные символы '''
+    elif call.data == "invert_colors":
+        bot.answer_callback_query(call.id, "Преобразование вашего изображения в негатив...")
+        send_photo(call.message)
 
+def ch_asc(message):
+    ''' присваивает новое значение набору символов, учавствуют только уникальные символы '''
 
     global ASCII_CHARS
     ASCII_CHARS = message.text
-    print (f'перед {ASCII_CHARS}')
+    print(f'перед {ASCII_CHARS}')
     ASCII_CHARS = list(set(ASCII_CHARS))
     print(f'после {ASCII_CHARS}')
 
 
 def pixelate_and_send(message):
+    '''Пикселизирует изображение и отправляет его обратно пользователю'''
     photo_id = user_states[message.chat.id]['photo']
     file_info = bot.get_file(photo_id)
     downloaded_file = bot.download_file(file_info.file_path)
@@ -134,6 +172,7 @@ def pixelate_and_send(message):
 
 
 def ascii_and_send(message):
+    '''Преобразует изображение в ASCII-арт и отправляет результат в виде текстового сообщения.'''
     photo_id = user_states[message.chat.id]['photo']
     file_info = bot.get_file(photo_id)
     downloaded_file = bot.download_file(file_info.file_path)
