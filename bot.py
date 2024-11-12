@@ -114,7 +114,7 @@ def ch_asc(message):
     global ASCII_CHARS
     ASCII_CHARS = message.text
     print (f'перед {ASCII_CHARS}')
-    ASCII_CHARS = set(ASCII_CHARS)
+    ASCII_CHARS = list(set(ASCII_CHARS))
     print(f'после {ASCII_CHARS}')
 
 
