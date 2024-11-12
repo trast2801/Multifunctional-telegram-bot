@@ -108,10 +108,14 @@ def callback_query(call):
         bot.register_next_step_handler(msg, ch_asc)
         get_options_keyboard()
 def ch_asc(message):
-    ''' присавивает новое значение набору символов '''
+    ''' присавивает новое значение набору символов, учавствуют только уникальные символы '''
+
 
     global ASCII_CHARS
     ASCII_CHARS = message.text
+    print (f'перед {ASCII_CHARS}')
+    ASCII_CHARS = set(ASCII_CHARS)
+    print(f'после {ASCII_CHARS}')
 
 
 def pixelate_and_send(message):
