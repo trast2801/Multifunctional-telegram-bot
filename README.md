@@ -1,7 +1,7 @@
-# Paint_on_TKinter
+## Мультифункциональный бот
 
 <p align="center">
-**Paint_on_TKinter**
+**Мультифункциональный бот**
   <br><br>
   <img src="https://i.ytimg.com/vi/2z58SHwQI6Y/maxresdefault.jpg">
 </p>
