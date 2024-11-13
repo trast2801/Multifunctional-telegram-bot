@@ -35,7 +35,7 @@ def invert_colors(image):
     return ImageOps.invert(image)
 
 def send_photo(message):
-    '''Преобразует изображение в негатив и отправляет результат в виде текстового сообщения.'''
+    '''Преобразует изображение в негатив и отправляет результат'''
     photo_id = user_states[message.chat.id]['photo']
     file_info = bot.get_file(photo_id)
     downloaded_file = bot.download_file(file_info.file_path)
@@ -122,7 +122,10 @@ def get_options_keyboard():
     ascii_btn = types.InlineKeyboardButton("ASCII Art", callback_data="ascii")
     change_ASCII = types.InlineKeyboardButton("Сменить набор ASCII", callback_data="change_ascii")
     image_negative = types.InlineKeyboardButton("Получить Негатив", callback_data="invert_colors")
-    keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative, row_width=2)
+    image_FLIP_LEFT_RIGHT = types.InlineKeyboardButton("Зеркало горизонт", callback_data="flip_left_right")
+    image_FLIP_TOP_BOTTOM = types.InlineKeyboardButton("Зеркало по вертикаль", callback_data="flip_top_bottom")
+    keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative,
+                 image_FLIP_LEFT_RIGHT,image_FLIP_TOP_BOTTOM, row_width=2)
     return keyboard
 
 
@@ -144,6 +147,12 @@ def callback_query(call):
     elif call.data == "invert_colors":
         bot.answer_callback_query(call.id, "Преобразование вашего изображения в негатив...")
         send_photo(call.message)
+    elif call.data == "flip_left_right":
+        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
+        mirror_image(call.message,rotate="FLIP_TOP_BOTTOM")
+    elif call.data == "flip_top_bottom":
+        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
+        mirror_image(call.message,rotate="FLIP_LEFT_RIGHT")
 
 def ch_asc(message):
     ''' присваивает новое значение набору символов, учавствуют только уникальные символы '''
@@ -181,5 +190,23 @@ def ascii_and_send(message):
     ascii_art = image_to_ascii(image_stream)
     bot.send_message(message.chat.id, f"```\n{ascii_art}\n```", parse_mode="MarkdownV2")
 
+def mirror_image(message, rotate):
+    '''Создает отраженную копию изображения по горизонтали или вертикали.'''
+    photo_id = user_states[message.chat.id]['photo']
+    file_info = bot.get_file(photo_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+
+    image_stream = io.BytesIO(downloaded_file)
+    image = Image.open(image_stream)
+
+    if rotate == "FLIP_TOP_BOTTOM":
+        image_inverted = image.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+    elif rotate == "FLIP_LEFT_RIGHT":
+        image_inverted = image.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+
+    output_stream = io.BytesIO()
+    image_inverted.save(output_stream, format="JPEG")
+    output_stream.seek(0)
+    bot.send_photo(message.chat.id, output_stream)
 
 bot.polling(none_stop=True)
