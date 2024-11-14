@@ -39,6 +39,8 @@ pixelate_image(image, pixel_size):
 
 - send_photo(message) Преобразует изображение в негатив и отправляет результат
   
+  ![negativ](https://github.com/user-attachments/assets/ea505061-82b3-48d7-a53a-e90cc926bb3d?size=medium)
+
 ## Преобразование в ASCII-арт
 
 Подготовка изображения:
@@ -79,10 +81,9 @@ pixels_to_ascii(image):
 
 - ascii_and_send(message): Преобразует изображение в ASCII-арт и отправляет результат в виде текстового сообщения.
 
-## черновик скрины
-
-![2024-11-12_23-39-47](https://github.com/user-attachments/assets/082fe1b0-2be7-407a-9539-497c52cde789)
-
+## mirror_image(message, rotate):
+    Создает отраженную копию изображения по горизонтали или вертикали.
+![Flip](https://github.com/user-attachments/assets/5108c7bb-d0ad-4ccd-b171-e09779378626?size=small)
 
 ## Видео работы бота прикреплю позже
 
