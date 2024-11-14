@@ -39,7 +39,7 @@ pixelate_image(image, pixel_size):
 
 - send_photo(message) Преобразует изображение в негатив и отправляет результат
   
-  ![negativ](https://github.com/user-attachments/assets/ea505061-82b3-48d7-a53a-e90cc926bb3d?size=medium)
+<img src="rez_image/negative.png" width="200" height="130" alt=""">
 
 ## Преобразование в ASCII-арт
 
@@ -83,7 +83,12 @@ pixels_to_ascii(image):
 
 ## mirror_image(message, rotate):
     Создает отраженную копию изображения по горизонтали или вертикали.
-![Flip](https://github.com/user-attachments/assets/5108c7bb-d0ad-4ccd-b171-e09779378626?size=small)
+<img src="rez_image/mirror_horizont.png" width="200" height="130" alt="" class="img-responsive">
+<img src="rez_image/mirror_vert.png" width="200" height="130" alt="" class="img-responsive">
 
+## convert_to_heatmap(image):
+    Изображение преобразуется так, чтобы его цвета отображались в виде тепловой карты,
+    от синего (холодные области) до красного (теплые области)
+<img src="rez_image/heat_map.png" width="200" height="130" alt="" class="img-responsive">    
 ## Видео работы бота прикреплю позже
 
