@@ -3,6 +3,9 @@ from PIL import Image, ImageOps
 import io
 from telebot import types
 import config
+import requests
+from bs4 import BeautifulSoup
+
 
 TOKEN = config.TOKEN
 
@@ -115,6 +118,13 @@ def resize_for_sticker(image, max_size=512):
         image = image.resize((new_width, new_height))
     return image
 
+def joke():
+    '''Функция запрашивает с сайта случайную шутку'''
+    url = "https://randstuff.ru/joke/api/random/"
+    response = requests.get(url)
+    bs = BeautifulSoup(response.text, "lxml")
+    temp = bs.find('table')
+    return temp.text
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -139,9 +149,10 @@ def get_options_keyboard():
     image_FLIP_TOP_BOTTOM = types.InlineKeyboardButton("Зеркало по вертикали", callback_data="flip_top_bottom")
     heat_map_image = types.InlineKeyboardButton("Тепловая карта", callback_data="heat_map")
     stiker = types.InlineKeyboardButton("Изображение в стикер", callback_data="stiker")
+    joke =  types.InlineKeyboardButton("Анекдот из сети", callback_data="joke")
     keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative,
                  image_FLIP_LEFT_RIGHT, image_FLIP_TOP_BOTTOM, heat_map_image,
-                 stiker, row_width=2)
+                 stiker, joke, row_width=2)
     return keyboard
 
 
@@ -175,7 +186,9 @@ def callback_query(call):
     elif call.data == "stiker":
         bot.answer_callback_query(call.id, "Конвертировать изображение в стикер...")
         maket_for_processing_image(call.message, "stiker")
-
+    elif call.data == "joke":
+        bot.send_message(call.message.chat.id, joke())
+        get_options_keyboard()
 
 def ch_asc(message):
     ''' присваивает новое значение набору символов, учавствуют только уникальные символы '''
