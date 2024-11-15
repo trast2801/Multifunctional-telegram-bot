@@ -23,6 +23,7 @@ def resize_image(image, new_width=100):
     new_height = int(new_width * ratio)
     return image.resize((new_width, new_height))
 
+
 def grayify(image):
     '''Преобразует цветное изображение в оттенки серого.'''
     return image.convert("L")
@@ -35,12 +36,14 @@ def invert_colors(image):
     '''
     return ImageOps.invert(image)
 
+
 def convert_to_heatmap(image):
     '''
     Изображение преобразуется так, чтобы его цвета отображались в виде тепловой карты,
      от синего (холодные области) до красного (теплые области)
     '''
     return ImageOps.colorize(image.convert('L'), black='blue', white='red', mid='#984f4f', midpoint=127)
+
 
 def image_to_ascii(image_stream, new_width=40):
     '''
@@ -96,9 +99,27 @@ def pixelate_image(image, pixel_size):
     return image
 
 
+def resize_for_sticker(image, max_size=512):
+    '''
+    изменяет размер изображения, сохраняя пропорции, чтобы его максимальное
+    измерение не превышало заданного максимума (например, 512 пикселей)
+    '''
+    width, height = image.size
+    if width > max_size or height > max_size:
+        if width > height:
+            new_width = max_size
+            new_height = int(height * (max_size / width))
+        else:
+            new_height = max_size
+            new_width = int(width * (max_size / height))
+        image = image.resize((new_width, new_height))
+    return image
+
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     bot.reply_to(message, "Пришлите мне изображение, и я предложу вам варианты")
+
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
@@ -117,8 +138,10 @@ def get_options_keyboard():
     image_FLIP_LEFT_RIGHT = types.InlineKeyboardButton("Зеркало горизонтали", callback_data="flip_left_right")
     image_FLIP_TOP_BOTTOM = types.InlineKeyboardButton("Зеркало по вертикали", callback_data="flip_top_bottom")
     heat_map_image = types.InlineKeyboardButton("Тепловая карта", callback_data="heat_map")
+    stiker = types.InlineKeyboardButton("Изображение в стикер", callback_data="stiker")
     keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative,
-                 image_FLIP_LEFT_RIGHT, image_FLIP_TOP_BOTTOM,heat_map_image, row_width=2)
+                 image_FLIP_LEFT_RIGHT, image_FLIP_TOP_BOTTOM, heat_map_image,
+                 stiker, row_width=2)
     return keyboard
 
 
@@ -142,13 +165,16 @@ def callback_query(call):
         maket_for_processing_image(call.message, "inverted")
     elif call.data == "flip_left_right":
         bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
-        maket_for_processing_image(call.message,"FLIP_TOP_BOTTOM")
+        maket_for_processing_image(call.message, "FLIP_TOP_BOTTOM")
     elif call.data == "flip_top_bottom":
         bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
         maket_for_processing_image(call.message, "FLIP_LEFT_RIGHT")
     elif call.data == "heat_map":
         bot.answer_callback_query(call.id, "Тепловая карта вашего изображения...")
         maket_for_processing_image(call.message, "heat_map")
+    elif call.data == "stiker":
+        bot.answer_callback_query(call.id, "Конвертировать изображение в стикер...")
+        maket_for_processing_image(call.message, "stiker")
 
 
 def ch_asc(message):
@@ -156,6 +182,7 @@ def ch_asc(message):
 
     global ASCII_CHARS
     ASCII_CHARS = list(set(message.text))
+
 
 def ascii_and_send(message):
     '''Преобразует изображение в ASCII-арт и отправляет результат в виде текстового сообщения.'''
@@ -167,6 +194,7 @@ def ascii_and_send(message):
     ascii_art = image_to_ascii(image_stream)
     bot.send_message(message.chat.id, f"```\n{ascii_art}\n```", parse_mode="MarkdownV2")
 
+
 def maket_for_processing_image(message, type_func):
     photo_id = user_states[message.chat.id]['photo']
     file_info = bot.get_file(photo_id)
@@ -175,20 +203,23 @@ def maket_for_processing_image(message, type_func):
     image_stream = io.BytesIO(downloaded_file)
     image = Image.open(image_stream)
 
-    if type_func == "heat_map":
+    if type_func == "heat_map":  # конвертировать рисунок в тепловую карту
         rez_image = convert_to_heatmap(image)
-    if type_func == "FLIP_TOP_BOTTOM":
+    if type_func == "FLIP_TOP_BOTTOM":  # отзеркалить по горизонтали
         rez_image = image.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-    if type_func == "FLIP_LEFT_RIGHT":
+    if type_func == "FLIP_LEFT_RIGHT":  # отзеркалить по вериткали
         rez_image = image.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-    if type_func == "pixelate":
+    if type_func == "pixelate":  # конвертировать в пиксели
         rez_image = pixelate_image(image, 20)
-    if type_func == "inverted":
+    if type_func == "inverted":  # теплоая карта
         rez_image = invert_colors(image)
+    if type_func == "stiker":
+        rez_image = resize_for_sticker(image)  # Изменение размера для стикера
 
     output_stream = io.BytesIO()
     rez_image.save(output_stream, format="JPEG")
     output_stream.seek(0)
     bot.send_photo(message.chat.id, output_stream)
+
 
 bot.polling(none_stop=True)
