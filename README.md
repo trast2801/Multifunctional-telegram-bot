@@ -83,8 +83,11 @@ pixels_to_ascii(image):
 
 - mirror_image(message, rotate):
     Создает отраженную копию изображения по горизонтали или вертикали.
-<img src="rez_image/mirror_horizont.png" width="200" height="130" alt="" class="img-responsive">
-<img src="rez_image/mirror_vert.png" width="200" height="130" alt="" class="img-responsive">
+<p dir="auto">  
+  <img src="rez_image/mirror_horizont.png" width="200" height="130"style="max-width: 00%;">&nbsp; &nbsp;
+  <img src="rez_image/mirror_vert.png" width="200" height="130" style="max-width: 00%;">&nbsp; &nbsp;
+  &nbsp; &nbsp;
+</p>
 
 ##  Создает тепловую карту 
 
@@ -93,5 +96,15 @@ pixels_to_ascii(image):
     от синего (холодные области) до красного (теплые области)
 <img src="rez_image/heat_map.png" width="200" height="130" alt="" class="img-responsive">
 
+## Уменьшает размер изображения (макс 512)
+
+- resize_for_sticker(image, max_size=512):
+  
+    изменяет размер изображения, сохраняя пропорции, чтобы его максимальное
+    измерение не превышало заданного максимума (например, 512 пикселей)
+<img src="rez_image/stiker.png" width="50" height="50" alt="" class="img-responsive">
+
 ## Видео работы бота прикреплю позже
+
+
 
