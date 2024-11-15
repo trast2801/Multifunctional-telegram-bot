@@ -35,12 +35,6 @@ pixelate_image(image, pixel_size):
 
 - Принимает изображение и размер пикселя. Уменьшает изображение до размера, где один пиксель представляет большую область, затем увеличивает обратно, создавая пиксельный эффект.
 
-## Преобразование в негатив
-
-- send_photo(message) Преобразует изображение в негатив и отправляет результат
-  
-  ![negativ](https://github.com/user-attachments/assets/ea505061-82b3-48d7-a53a-e90cc926bb3d?size=medium)
-
 ## Преобразование в ASCII-арт
 
 Подготовка изображения:
@@ -80,10 +74,24 @@ pixels_to_ascii(image):
 - pixelate_and_send(message): Пикселизирует изображение и отправляет его обратно пользователю.
 
 - ascii_and_send(message): Преобразует изображение в ASCII-арт и отправляет результат в виде текстового сообщения.
+## Преобразование в негатив
 
-## mirror_image(message, rotate):
+- send_photo(message) Преобразует изображение в негатив и отправляет результат
+<img src="rez_image/neagtive.png" width="200" height="130" alt="" class="img-responsive">
+
+## Зеркалит изображение по вертикали и горизонтали
+
+- mirror_image(message, rotate):
     Создает отраженную копию изображения по горизонтали или вертикали.
-![Flip](https://github.com/user-attachments/assets/5108c7bb-d0ad-4ccd-b171-e09779378626?size=small)
+<img src="rez_image/mirror_horizont.png" width="200" height="130" alt="" class="img-responsive">
+<img src="rez_image/mirror_vert.png" width="200" height="130" alt="" class="img-responsive">
+
+##  Создает тепловую карту 
+
+- convert_to_heatmap(image):
+    Изображение преобразуется так, чтобы его цвета отображались в виде тепловой карты,
+    от синего (холодные области) до красного (теплые области)
+<img src="rez_image/heat_map.png" width="200" height="130" alt="" class="img-responsive">
 
 ## Видео работы бота прикреплю позже
 
