@@ -173,10 +173,18 @@ def maket_for_processing_image(message, type_func):
 
 
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "Пришлите мне изображение, и я предложу вам варианты")
 
+@bot.message_handler(commands=['help'])
+def handle_help(message):
+    help_text = (
+        "/start - Начать работу с ботом\n"
+        "/help - Получить список команд\n"
+        "/joke - Пошутить\n"
+    )
+    bot.send_message(message.chat.id, help_text)
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
@@ -240,11 +248,13 @@ def callback_query(call):
 @bot.message_handler(commands=['joke'])
 def send_random_joke(message):
     bot.send_message(message.chat.id, joke())
-@bot.message_handler(func=lambda message: user_states.get(message.chat.id, {}).get('state') == 'waiting_for_ascii_chars')
-def handle_ascii_chars(message):
-    user_states[message.chat.id]['ascii_chars'] = message.text.split()
-    ascii_and_send(message)
-    user_states[message.chat.id].pop('state', None)
+
+
+# @bot.message_handler(func=lambda message: user_states.get(message.chat.id, {}).get('state') == 'waiting_for_ascii_chars')
+# def handle_ascii_chars(message):
+#     user_states[message.chat.id]['ascii_chars'] = message.text.split()
+#     ascii_and_send(message)
+#     user_states[message.chat.id].pop('state', None)
 
 
 bot.polling(none_stop=True)
