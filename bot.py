@@ -239,7 +239,7 @@ def callback_query(call):
         get_options_keyboard()
 @bot.message_handler(commands=['joke'])
 def send_random_joke(message):
-    bot.reply_to(message, joke())
+    bot.send_message(message.chat.id, joke())
 @bot.message_handler(func=lambda message: user_states.get(message.chat.id, {}).get('state') == 'waiting_for_ascii_chars')
 def handle_ascii_chars(message):
     user_states[message.chat.id]['ascii_chars'] = message.text.split()
