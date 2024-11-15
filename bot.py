@@ -126,69 +126,6 @@ def joke():
     temp = bs.find('table')
     return temp.text
 
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
-    bot.reply_to(message, "Пришлите мне изображение, и я предложу вам варианты")
-
-
-@bot.message_handler(content_types=['photo'])
-def handle_photo(message):
-    bot.reply_to(message, "У меня есть ваша фотография! Пожалуйста, выберите, что бы вы хотели с ней сделать.",
-                 reply_markup=get_options_keyboard())
-    user_states[message.chat.id] = {'photo': message.photo[-1].file_id}
-
-
-def get_options_keyboard():
-    '''вывод меню для выбора режима обработки изображения пользователем'''
-    keyboard = types.InlineKeyboardMarkup()
-    pixelate_btn = types.InlineKeyboardButton("Pixelate", callback_data="pixelate")
-    ascii_btn = types.InlineKeyboardButton("ASCII Art", callback_data="ascii")
-    change_ASCII = types.InlineKeyboardButton("Сменить набор ASCII", callback_data="change_ascii")
-    image_negative = types.InlineKeyboardButton("Получить Негатив", callback_data="invert_colors")
-    image_FLIP_LEFT_RIGHT = types.InlineKeyboardButton("Зеркало горизонтали", callback_data="flip_left_right")
-    image_FLIP_TOP_BOTTOM = types.InlineKeyboardButton("Зеркало по вертикали", callback_data="flip_top_bottom")
-    heat_map_image = types.InlineKeyboardButton("Тепловая карта", callback_data="heat_map")
-    stiker = types.InlineKeyboardButton("Изображение в стикер", callback_data="stiker")
-    joke =  types.InlineKeyboardButton("Анекдот из сети", callback_data="joke")
-    keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative,
-                 image_FLIP_LEFT_RIGHT, image_FLIP_TOP_BOTTOM, heat_map_image,
-                 stiker, joke, row_width=2)
-    return keyboard
-
-
-@bot.callback_query_handler(func=lambda call: True)
-def callback_query(call):
-    '''    Определяет действия в ответ на выбор пользователя (например, пикселизация или ASCII-арт)
-        и вызывает соответствующую функцию обработки.
-    '''
-    if call.data == "pixelate":
-        bot.answer_callback_query(call.id, "Пикселизация вашего изображения...")
-        maket_for_processing_image(call.message, "pixelate")
-    elif call.data == "ascii":
-        bot.answer_callback_query(call.id, "Преобразование вашего изображения в формат ASCII...")
-        ascii_and_send(call.message)
-    elif call.data == "change_ascii":
-        msg = bot.send_message(call.message.chat.id, 'Введите набор символов')
-        bot.register_next_step_handler(msg, ch_asc)
-        get_options_keyboard()
-    elif call.data == "invert_colors":
-        bot.answer_callback_query(call.id, "Преобразование вашего изображения в негатив...")
-        maket_for_processing_image(call.message, "inverted")
-    elif call.data == "flip_left_right":
-        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
-        maket_for_processing_image(call.message, "FLIP_TOP_BOTTOM")
-    elif call.data == "flip_top_bottom":
-        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
-        maket_for_processing_image(call.message, "FLIP_LEFT_RIGHT")
-    elif call.data == "heat_map":
-        bot.answer_callback_query(call.id, "Тепловая карта вашего изображения...")
-        maket_for_processing_image(call.message, "heat_map")
-    elif call.data == "stiker":
-        bot.answer_callback_query(call.id, "Конвертировать изображение в стикер...")
-        maket_for_processing_image(call.message, "stiker")
-    elif call.data == "joke":
-        bot.send_message(call.message.chat.id, joke())
-        get_options_keyboard()
 
 def ch_asc(message):
     ''' присваивает новое значение набору символов, учавствуют только уникальные символы '''
@@ -233,6 +170,81 @@ def maket_for_processing_image(message, type_func):
     rez_image.save(output_stream, format="JPEG")
     output_stream.seek(0)
     bot.send_photo(message.chat.id, output_stream)
+
+
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "Пришлите мне изображение, и я предложу вам варианты")
+
+
+@bot.message_handler(content_types=['photo'])
+def handle_photo(message):
+    bot.reply_to(message, "У меня есть ваша фотография! Пожалуйста, выберите, что бы вы хотели с ней сделать.",
+                 reply_markup=get_options_keyboard())
+    user_states[message.chat.id] = {'photo': message.photo[-1].file_id}
+
+
+def get_options_keyboard():
+    '''вывод меню для выбора режима обработки изображения пользователем'''
+    keyboard = types.InlineKeyboardMarkup()
+    pixelate_btn = types.InlineKeyboardButton("Pixelate", callback_data="pixelate")
+    ascii_btn = types.InlineKeyboardButton("ASCII Art", callback_data="ascii")
+    change_ASCII = types.InlineKeyboardButton("Сменить набор ASCII", callback_data="change_ascii")
+    image_negative = types.InlineKeyboardButton("Получить Негатив", callback_data="invert_colors")
+    image_FLIP_LEFT_RIGHT = types.InlineKeyboardButton("Зеркало горизонтали", callback_data="flip_left_right")
+    image_FLIP_TOP_BOTTOM = types.InlineKeyboardButton("Зеркало по вертикали", callback_data="flip_top_bottom")
+    heat_map_image = types.InlineKeyboardButton("Тепловая карта", callback_data="heat_map")
+    stiker = types.InlineKeyboardButton("Изображение в стикер", callback_data="stiker")
+    joke =  types.InlineKeyboardButton("Анекдот из сети", callback_data="joke")
+    keyboard.add(pixelate_btn, ascii_btn, change_ASCII, image_negative,
+                 image_FLIP_LEFT_RIGHT, image_FLIP_TOP_BOTTOM, heat_map_image,
+                 stiker, joke, row_width=2)
+    return keyboard
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    '''    Определяет действия в ответ на выбор пользователя (например, пикселизация или ASCII-арт)
+        и вызывает соответствующую функцию обработки.
+    '''
+    if call.data == "pixelate":
+        bot.answer_callback_query(call.id, "Пикселизация вашего изображения...")
+        maket_for_processing_image(call.message, "pixelate")
+    elif call.data == "ascii":
+        bot.answer_callback_query(call.id, "Преобразование вашего изображения в формат ASCII...")
+        ascii_and_send(call.message)
+        user_states[call.message.chat.id]['state'] = 'waiting_for_ascii_chars'
+    elif call.data == "change_ascii":
+        msg = bot.send_message(call.message.chat.id, 'Введите набор символов')
+        bot.register_next_step_handler(msg, ch_asc)
+        get_options_keyboard()
+    elif call.data == "invert_colors":
+        bot.answer_callback_query(call.id, "Преобразование вашего изображения в негатив...")
+        maket_for_processing_image(call.message, "inverted")
+    elif call.data == "flip_left_right":
+        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
+        maket_for_processing_image(call.message, "FLIP_TOP_BOTTOM")
+    elif call.data == "flip_top_bottom":
+        bot.answer_callback_query(call.id, "Отражение вашего изображения по горизонтали...")
+        maket_for_processing_image(call.message, "FLIP_LEFT_RIGHT")
+    elif call.data == "heat_map":
+        bot.answer_callback_query(call.id, "Тепловая карта вашего изображения...")
+        maket_for_processing_image(call.message, "heat_map")
+    elif call.data == "stiker":
+        bot.answer_callback_query(call.id, "Конвертировать изображение в стикер...")
+        maket_for_processing_image(call.message, "stiker")
+    elif call.data == "joke":
+        bot.send_message(call.message.chat.id, joke())
+        get_options_keyboard()
+@bot.message_handler(commands=['joke'])
+def send_random_joke(message):
+    bot.reply_to(message, joke())
+@bot.message_handler(func=lambda message: user_states.get(message.chat.id, {}).get('state') == 'waiting_for_ascii_chars')
+def handle_ascii_chars(message):
+    user_states[message.chat.id]['ascii_chars'] = message.text.split()
+    ascii_and_send(message)
+    user_states[message.chat.id].pop('state', None)
 
 
 bot.polling(none_stop=True)
