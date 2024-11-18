@@ -1,3 +1,5 @@
+import random
+
 import telebot
 from PIL import Image, ImageOps
 import io
@@ -17,6 +19,14 @@ user_states = {}  # тут будем хранить информацию о д�
 
 # набор символов из которых составляем изображение
 ASCII_CHARS = '@%#*+=-:. '
+
+# Список комплиментов
+COMPLIMENTS = [
+    "Ты выглядишь потрясающе сегодня!",
+    "Ты самый  умный!",
+    "Ты талантлив!",
+
+]
 
 
 def resize_image(image, new_width=100):
@@ -126,6 +136,10 @@ def joke():
     temp = bs.find('table')
     return temp.text
 
+@bot.message_handler(commands=['RandomCompliment'])
+def send_random_compliment(message):
+    random_compliment = random.choice(COMPLIMENTS)
+    bot.send_message(message.chat.id, random_compliment)
 
 def ch_asc(message):
     ''' присваивает новое значение набору символов, учавствуют только уникальные символы '''
@@ -183,6 +197,8 @@ def handle_help(message):
         "/start - Начать работу с ботом\n"
         "/help - Получить список команд\n"
         "/joke - Пошутить\n"
+        "/RandomCompliment\n"
+
     )
     bot.send_message(message.chat.id, help_text)
 
