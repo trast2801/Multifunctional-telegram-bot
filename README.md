@@ -104,6 +104,16 @@ pixels_to_ascii(image):
     измерение не превышало заданного максимума (например, 512 пикселей)
 <img src="rez_image/stiker.png" width="50" height="50" alt="" class="img-responsive">
 
+## Добавлены комманды /joke /RandomCompliment /help
+
+  - send_random_compliment(message):
+    Отправляет случайную записьиз списка
+  - handle_help(message):
+    выводит список активных комманд
+  - joke():
+    Функция запрашивает с сайта случайную шутку
+<img src="rez_image/комплимент.png" width="200" height="130" alt="" class="img-responsive">
+
 ## Видео работы бота прикреплю позже
 
 
