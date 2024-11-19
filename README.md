@@ -114,6 +114,10 @@ pixels_to_ascii(image):
     Функция запрашивает с сайта случайную шутку
 <img src="rez_image/комплимент.png" width="200" height="130" alt="" class="img-responsive">
 
+## Добавлены команды /flip_a_coin 
+  - flip_coin(message):
+    возвращает случайныйй выбор из двух значений
+<img src="rez_image/7 задание.png" width="200" height="130" alt="" class="img-responsive">
 ## Видео работы бота прикреплю позже
 
 
